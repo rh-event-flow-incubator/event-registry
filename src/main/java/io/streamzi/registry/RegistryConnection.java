@@ -8,11 +8,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
+import org.apache.log4j.Level;
 
 /**
  * This class maintains a connection to a Zookeper server
@@ -25,8 +28,26 @@ public class RegistryConnection implements Closeable {
     private String baseKey = "/strombrau";
     private ExecutorService executor = Executors.newSingleThreadExecutor();
     private CopyOnWriteArrayList<RegistryKeyListener> listeners = new CopyOnWriteArrayList<>();
-    
 
+    public RegistryConnection() {
+        createExecutor();
+    }
+
+    public RegistryConnection(String zookeeperUrl) {
+        this.zookeeperUrl = zookeeperUrl;
+        createExecutor();
+    }
+
+    private void createExecutor(){
+        try {
+            executor = InitialContext.doLookup("java:comp/DefaultManagedExecutorService");
+            logger.log(java.util.logging.Level.INFO, "Using managed executor service");
+        } catch (NamingException e) {
+            executor = Executors.newSingleThreadExecutor();  
+            logger.log(java.util.logging.Level.INFO, "Using single threaded executor service");
+        }
+    }
+        
     @Override
     public void close() throws IOException {
         // No more operations
@@ -123,10 +144,6 @@ public class RegistryConnection implements Closeable {
 
     public void setBaseKey(String baseKey) {
         this.baseKey = baseKey;
-    }
-
-    public RegistryConnection(String zookeeperUrl) {
-        this.zookeeperUrl = zookeeperUrl;
     }
 
     public void connect() {
