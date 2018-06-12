@@ -26,7 +26,7 @@ public class RegistryConnection implements Closeable {
     private static final Logger logger = Logger.getLogger(RegistryConnection.class.getName());
     
     private String baseKey = "/strombrau";
-    private ExecutorService executor = Executors.newSingleThreadExecutor();
+    private ExecutorService executor;
     private CopyOnWriteArrayList<RegistryKeyListener> listeners = new CopyOnWriteArrayList<>();
 
     public RegistryConnection() {
