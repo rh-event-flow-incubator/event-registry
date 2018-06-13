@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package io.streamzi.registry.strombrau.tests;
+package io.streamzi.strombrau.registry.tests;
 
 import io.streamzi.strombrau.registry.RegistryConnection;
 import java.util.logging.Logger;

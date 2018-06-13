@@ -1,4 +1,4 @@
-package io.streamzi.registry.strombrau.tests;
+package io.streamzi.strombrau.registry.tests;
 
 import io.streamzi.strombrau.registry.RegistryConnection;
 import io.streamzi.strombrau.registry.RegistryException;
