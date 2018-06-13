@@ -3,9 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package io.streamzi.registry.tests;
+package io.streamzi.registry.strombrau.tests;
 
-import io.streamzi.registry.RegistryConnection;
+import io.streamzi.strombrau.registry.RegistryConnection;
 import java.util.logging.Logger;
 import org.junit.After;
 import org.junit.AfterClass;

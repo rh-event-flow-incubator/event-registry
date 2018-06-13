@@ -1,4 +1,4 @@
-package io.streamzi.registry;
+package io.streamzi.strombrau.registry;
 
 /**
  * Simple class to dump registry key events

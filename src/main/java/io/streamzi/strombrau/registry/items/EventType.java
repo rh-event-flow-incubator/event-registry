@@ -1,4 +1,4 @@
-package io.streamzi.registry.items;
+package io.streamzi.strombrau.registry.items;
 
 /**
  * Represents a type of event stored in the registry

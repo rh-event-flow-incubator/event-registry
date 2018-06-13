@@ -1,4 +1,4 @@
-package io.streamzi.registry;
+package io.streamzi.strombrau.registry;
 
 import java.io.Closeable;
 import java.io.IOException;

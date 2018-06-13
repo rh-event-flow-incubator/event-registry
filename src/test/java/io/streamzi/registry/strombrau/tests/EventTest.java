@@ -1,12 +1,12 @@
-package io.streamzi.registry.tests;
+package io.streamzi.registry.strombrau.tests;
 
-import io.streamzi.registry.RegistryConnection;
-import io.streamzi.registry.RegistryException;
-import io.streamzi.registry.RegistryKeyListener;
-import io.streamzi.registry.items.EventType;
-import io.streamzi.registry.operations.CreateEventType;
-import io.streamzi.registry.operations.ListEventTypes;
-import io.streamzi.registry.operations.RemoveEventType;
+import io.streamzi.strombrau.registry.RegistryConnection;
+import io.streamzi.strombrau.registry.RegistryException;
+import io.streamzi.strombrau.registry.RegistryKeyListener;
+import io.streamzi.strombrau.registry.items.EventType;
+import io.streamzi.strombrau.registry.operations.CreateEventType;
+import io.streamzi.strombrau.registry.operations.ListEventTypes;
+import io.streamzi.strombrau.registry.operations.RemoveEventType;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.After;
