@@ -27,7 +27,7 @@ public class RegistryConnection implements Closeable {
     
     private String baseKey = "/strombrau";
     private ExecutorService executor;
-    private CopyOnWriteArrayList<RegistryKeyListener> listeners = new CopyOnWriteArrayList<>();
+    private final List<RegistryKeyListener> listeners = new CopyOnWriteArrayList<>();
 
     public RegistryConnection() {
         createExecutor();
@@ -53,10 +53,8 @@ public class RegistryConnection implements Closeable {
         // No more operations
         executor.shutdownNow();
         
-        // Shutdown the listners
-        for(RegistryKeyListener l : listeners){
-            l.close();
-        }
+        // Shutdown the listeners
+        listeners.forEach(listener -> listener.close());
 
         // CLose the client
         client.close();
@@ -79,7 +77,7 @@ public class RegistryConnection implements Closeable {
      */
     public CompletableFuture execute(RegistryOperation operation) {
         if(!executor.isShutdown()){
-            CompletableFuture<RegistryOperation> future = new CompletableFuture<>();
+            final CompletableFuture<RegistryOperation> future = new CompletableFuture<>();
             operation.setConnection(this);
             executor.submit(()->{
                 try {
@@ -91,7 +89,7 @@ public class RegistryConnection implements Closeable {
             });
             return future;
         } else {
-            CompletableFuture<RegistryOperation> future = new CompletableFuture<>();
+            final CompletableFuture<RegistryOperation> future = new CompletableFuture<>();
             executor.submit(()->{
                 future.completeExceptionally(new RegistryException("Registry not connected"));
             });
@@ -152,12 +150,7 @@ public class RegistryConnection implements Closeable {
             client.start();
             client.blockUntilConnected();
             
-            client.getConnectionStateListenable().addListener(new ConnectionStateListener() {
-                @Override
-                public void stateChanged(CuratorFramework client, ConnectionState newState) {
-                    logger.info("Connection state change: " + newState.toString());
-                }
-            });
+            client.getConnectionStateListenable().addListener((client, newState) -> logger.info("Connection state change: " + newState.toString()));
             
             connected = true;
 
@@ -202,10 +195,8 @@ public class RegistryConnection implements Closeable {
     public List<String> getChildStringsForKey(String key) throws RegistryException {
         assertConnected();
         try {
-            List<String> children = client.getChildren().forPath(buildKey(key));
-            for(String c : children){
-                logger.info(c);
-            }
+            final List<String> children = client.getChildren().forPath(buildKey(key));
+            children.forEach(child -> logger.info(child));
             return children;
         } catch (Exception e){
             throw new RegistryException("Error listing children for key: " + key, e);
