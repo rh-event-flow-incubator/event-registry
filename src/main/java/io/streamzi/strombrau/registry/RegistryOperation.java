@@ -10,7 +10,7 @@ import java.util.concurrent.FutureTask;
  * @author hhiden
  */
 public abstract class RegistryOperation {
-    protected ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+    protected final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
     
     protected RegistryConnection connection;
 

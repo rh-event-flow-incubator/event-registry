@@ -22,7 +22,7 @@ import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 public abstract class RegistryKeyListener<T> {
     private static final Logger logger = Logger.getLogger(RegistryKeyListener.class.getName());
     
-    private ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+    private final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
     private PathChildrenCache cache;
     private RegistryConnection connection;
     private String key;
@@ -37,48 +37,46 @@ public abstract class RegistryKeyListener<T> {
             cache = new PathChildrenCache(connection.getClient(), connection.buildKey(key), true);
             cache.start();
             cache.rebuild();
-            cache.getListenable().addListener(new PathChildrenCacheListener() {
-                @Override
-                public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
-                    switch(event.getType()){
-                        case CHILD_ADDED:
-                            try {
-                                byte[] data = event.getData().getData();
-                                T keyValue = recreatObject(data);
-                                objectAdded(keyValue);
-                            } catch (Exception e){
-                                logger.log(Level.SEVERE, "Error processing CHILD_ADDED event: " + e.getMessage(), e);
-                            }
-                            
-                            break;
-                            
-                        case CHILD_REMOVED:
-                            try {
-                                byte[] data = event.getData().getData();
-                                T keyValue = recreatObject(data);
-                                objectRemoved(keyValue);
-                            } catch (Exception e){
-                                logger.log(Level.SEVERE, "Error processing CHILD_REMOVED event: " + e.getMessage(), e);
-                            }                            
-                            break;
-                            
-                        case CHILD_UPDATED:
-                            try {
-                                byte[] data = event.getData().getData();
-                                T keyValue = recreatObject(data);
-                                objectChanged(keyValue);
-                            } catch (Exception e){
-                                logger.log(Level.SEVERE, "Error processing CHILD_UPDATED event: " + e.getMessage(), e);
-                            }                            
-                            break;
-                            
-                        default:
-                            logger.info(event.getType().toString());
-                    }
+            cache.getListenable().addListener((client, event) -> {
+                switch(event.getType()){
+                    case CHILD_ADDED:
+                        try {
+                            byte[] data = event.getData().getData();
+                            T keyValue = recreatObject(data);
+                            objectAdded(keyValue);
+                        } catch (Exception e){
+                            logger.log(Level.SEVERE, "Error processing CHILD_ADDED event: " + e.getMessage(), e);
+                        }
+
+                        break;
+
+                    case CHILD_REMOVED:
+                        try {
+                            byte[] data = event.getData().getData();
+                            T keyValue = recreatObject(data);
+                            objectRemoved(keyValue);
+                        } catch (Exception e){
+                            logger.log(Level.SEVERE, "Error processing CHILD_REMOVED event: " + e.getMessage(), e);
+                        }
+                        break;
+
+                    case CHILD_UPDATED:
+                        try {
+                            byte[] data = event.getData().getData();
+                            T keyValue = recreatObject(data);
+                            objectChanged(keyValue);
+                        } catch (Exception e){
+                            logger.log(Level.SEVERE, "Error processing CHILD_UPDATED event: " + e.getMessage(), e);
+                        }
+                        break;
+
+                    default:
+                        logger.info(event.getType().toString());
                 }
             });
         
         } catch (Exception e){
+            logger.severe(e.getMessage());
         }    
     }
 
@@ -103,7 +101,8 @@ public abstract class RegistryKeyListener<T> {
     
     public List<T> getValues() throws RegistryException {
         try {
-            ArrayList<T> results = new ArrayList<>();
+            final List<T> results = new ArrayList<>();
+
             for(ChildData child : cache.getCurrentData()){
                 results.add(recreatObject(child.getData()));
             }
@@ -115,10 +114,10 @@ public abstract class RegistryKeyListener<T> {
     
     private T recreatObject(byte[] data) throws RegistryException {
         try {
-            Type superclassType = getClass().getGenericSuperclass();
-            Type t = ((ParameterizedType) superclassType).getActualTypeArguments()[0];
-            Class cls = Class.forName(t.getTypeName());
-            return (T) mapper.readValue(data, cls);
+            final Type superclassType = getClass().getGenericSuperclass();
+            final Type t = ((ParameterizedType) superclassType).getActualTypeArguments()[0];
+            final Class<?> clazz = Class.forName(t.getTypeName());
+            return (T) mapper.readValue(data, clazz);
         } catch (Exception e) {
             throw new RegistryException("Error creating object: " + e.getMessage(), e);
         }

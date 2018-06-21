@@ -16,7 +16,7 @@ public class RemoveEventType extends RegistryOperation {
     }
     
     public RemoveEventType(EventType eventType){
-        this.eventTypeName = eventType.name;
+        this(eventType.name);
     }
 
     @Override
